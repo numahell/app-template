@@ -16,7 +16,7 @@ import uuid
 import webbrowser
 
 from distutils.spawn import find_executable
-from fabric.api import execute, local, prompt, task
+from fabric.api import execute, local, prompt, task, settings
 from oauth import get_credentials
 from time import sleep
 
@@ -54,11 +54,12 @@ def go(github_username=app_config.GITHUB_USERNAME, repository_name=None):
     for k, v in config.items():
         local('sed -i "" \'s|%s|%s|g\' %s' % (k, v, config_files))
 
-    local('rm -rf .git')
-    local('git init')
     local('mv PROJECT_README.md README.md')
-    local('rm *.pyc')
-    local('rm LICENSE')
+    with settings(warn_only=True):
+        local('rm *.pyc')
+        local('rm LICENSE')
+        local('rm -rf .git')
+    local('git init')
     local('git add .')
     local('git add -f www/assets/assetsignore')
     local('git commit -am "Initial import from app-template."')
